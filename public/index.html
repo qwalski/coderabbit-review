@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo App</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>📝 Todo App</h1>
+        <p>Organize your tasks efficiently</p>
+      </header>
+
+      <div class="todo-form">
+        <form id="todoForm">
+          <div class="form-group">
+            <input
+              type="text"
+              id="todoTitle"
+              placeholder="Enter todo title..."
+              required
+            />
+          </div>
+          <div class="form-group">
+            <textarea
+              id="todoDescription"
+              placeholder="Enter description (optional)..."
+              rows="3"
+            ></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Add Todo</button>
+        </form>
+      </div>
+
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="pending">Pending</button>
+        <button class="filter-btn" data-filter="completed">Completed</button>
+      </div>
+
+      <div class="todo-stats">
+        <span id="totalTodos">Total: 0</span>
+        <span id="completedTodos">Completed: 0</span>
+        <span id="pendingTodos">Pending: 0</span>
+      </div>
+
+      <div class="todos-container">
+        <div id="todosList" class="todos-list">
+          <!-- Todos will be dynamically loaded here -->
+        </div>
+        <div id="noTodos" class="no-todos" style="display: none">
+          <p>No todos found. Add one above to get started!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit Todo</h2>
+          <span class="close">&times;</span>
+        </div>
+        <form id="editForm">
+          <div class="form-group">
+            <input type="text" id="editTitle" required />
+          </div>
+          <div class="form-group">
+            <textarea id="editDescription" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="editCompleted" />
+              <span class="checkmark"></span>
+              Completed
+            </label>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelEdit">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Update Todo</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
