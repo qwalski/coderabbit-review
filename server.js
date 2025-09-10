@@ -6,6 +6,7 @@ const path = require('path');
 // Import modules
 const database = require('./config/database');
 const todoRoutes = require('./routes/todoRoutes');
+const activityRoutes = require('./routes/activityRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,6 +19,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 app.use('/api/todos', todoRoutes);
+app.use('/api/activities', activityRoutes);
 
 // Serve the main page
 app.get('/', (req, res) => {
