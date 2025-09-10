@@ -1,0 +1,59 @@
+# CodeRabbit Configuration for Node.js Todo App
+# Based on: https://docs.coderabbit.ai/reference/yaml-template#quick-start-templates
+
+# Set language for reviews
+language: "en-US"
+
+# Review settings
+reviews:
+  # Use chill profile for less nitpicky reviews
+  profile: "chill"
+  
+  # Generate high-level summary in PR description
+  high_level_summary: true
+  
+  # Auto-review enabled
+  auto_review:
+    enabled: true
+    drafts: false
+  
+  # Generate walkthrough with sequence diagrams
+  sequence_diagrams: true
+  
+  # Estimate code review effort
+  estimate_code_review_effort: true
+  
+  # Generate summary of changed files
+  changed_files_summary: true
+  
+  # Include poem in walkthrough (optional, can be disabled)
+  poem: true
+  
+  # Tools for Node.js development
+  tools:
+    # ESLint for JavaScript linting
+    eslint:
+      enabled: true
+    
+    # Security scanning
+    gitleaks:
+      enabled: true
+    
+    # YAML linting for config files
+    yamllint:
+      enabled: true
+
+# Path filters - focus on source code
+reviews:
+  path_filters:
+    # Include main source files
+    - "controllers/**"
+    - "routes/**"
+    - "config/**"
+    - "server.js"
+    - "package.json"
+    
+    # Exclude generated files and dependencies
+    - "!node_modules/**"
+    - "!todos.db"
+    - "!*.log"
