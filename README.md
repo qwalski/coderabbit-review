@@ -12,6 +12,8 @@ A modern, full-stack todo application built with Node.js, Express, and SQLite. F
 - 🚀 **REST API**: Clean, well-documented API endpoints
 - 📱 **Mobile Responsive**: Works perfectly on all device sizes
 - ⚡ **Real-time Updates**: Instant UI updates without page refresh
+- 📝 **Activity Tracking**: Complete audit log of all user actions
+- 🔍 **Activity Analytics**: Detailed statistics and activity monitoring
 
 ## Tech Stack
 
@@ -77,6 +79,17 @@ A modern, full-stack todo application built with Node.js, Express, and SQLite. F
 | PUT    | `/api/todos/:id` | Update a todo       | `{ "title": "string", "description": "string", "completed": boolean }` |
 | DELETE | `/api/todos/:id` | Delete a todo       | -                                                                      |
 
+### Activities
+
+| Method | Endpoint                   | Description                | Query Parameters           |
+| ------ | -------------------------- | -------------------------- | -------------------------- |
+| GET    | `/api/activities`          | Get all activities         | `page`, `limit`, `todo_id` |
+| GET    | `/api/activities/stats`    | Get activity statistics    | -                          |
+| GET    | `/api/activities/todo/:id` | Get activities for a todo  | -                          |
+| GET    | `/api/activities/:id`      | Get a specific activity    | -                          |
+| DELETE | `/api/activities/:id`      | Delete a specific activity | -                          |
+| DELETE | `/api/activities`          | Clear all activities       | -                          |
+
 ### Example API Usage
 
 **Create a new todo:**
@@ -107,11 +120,36 @@ curl -X PUT http://localhost:3000/api/todos/1 \
 curl -X DELETE http://localhost:3000/api/todos/1
 ```
 
+**Get all activities:**
+
+```bash
+curl http://localhost:3000/api/activities
+```
+
+**Get activities with pagination:**
+
+```bash
+curl "http://localhost:3000/api/activities?page=1&limit=10"
+```
+
+**Get activities for a specific todo:**
+
+```bash
+curl http://localhost:3000/api/activities/todo/1
+```
+
+**Get activity statistics:**
+
+```bash
+curl http://localhost:3000/api/activities/stats
+```
+
 ## Database Schema
 
 The application uses SQLite with the following schema:
 
 ```sql
+-- Todos table
 CREATE TABLE todos (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
@@ -119,6 +157,20 @@ CREATE TABLE todos (
   completed BOOLEAN DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Activities table for audit logging
+CREATE TABLE activities (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  todo_id INTEGER,
+  action TEXT NOT NULL,
+  description TEXT,
+  old_value TEXT,
+  new_value TEXT,
+  user_ip TEXT,
+  user_agent TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (todo_id) REFERENCES todos (id) ON DELETE SET NULL
 );
 ```
 
@@ -129,9 +181,11 @@ coderabbit-review/
 ├── config/                # Configuration files
 │   └── database.js       # Database connection and setup
 ├── controllers/           # Business logic controllers
-│   └── todoController.js # Todo-related controller functions
+│   ├── todoController.js # Todo-related controller functions
+│   └── activityController.js # Activity tracking controller
 ├── routes/               # API route definitions
-│   └── todoRoutes.js     # Todo API routes
+│   ├── todoRoutes.js     # Todo API routes
+│   └── activityRoutes.js # Activity API routes
 ├── public/               # Frontend files
 │   ├── index.html        # Main HTML file
 │   ├── style.css         # CSS styles

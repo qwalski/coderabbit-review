@@ -23,7 +23,7 @@ class Database {
 
   initializeTables() {
     return new Promise((resolve, reject) => {
-      const createTableSQL = `
+      const createTodosTableSQL = `
         CREATE TABLE IF NOT EXISTS todos (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           title TEXT NOT NULL,
@@ -34,14 +34,40 @@ class Database {
         )
       `;
 
-      this.db.run(createTableSQL, (err) => {
+      const createActivityTableSQL = `
+        CREATE TABLE IF NOT EXISTS activities (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          todo_id INTEGER,
+          action TEXT NOT NULL,
+          description TEXT,
+          old_value TEXT,
+          new_value TEXT,
+          user_ip TEXT,
+          user_agent TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (todo_id) REFERENCES todos (id) ON DELETE SET NULL
+        )
+      `;
+
+      // Create todos table
+      this.db.run(createTodosTableSQL, (err) => {
         if (err) {
-          console.error('Error creating table:', err.message);
+          console.error('Error creating todos table:', err.message);
           reject(err);
-        } else {
-          console.log('Todos table ready');
-          resolve();
+          return;
         }
+        console.log('Todos table ready');
+
+        // Create activities table
+        this.db.run(createActivityTableSQL, (err) => {
+          if (err) {
+            console.error('Error creating activities table:', err.message);
+            reject(err);
+            return;
+          }
+          console.log('Activities table ready');
+          resolve();
+        });
       });
     });
   }
