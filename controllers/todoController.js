@@ -5,16 +5,35 @@ class TodoController {
   async getAllTodos(req, res) {
     try {
       const db = database.getConnection();
+      const { search, status } = req.query;
       
-      db.all('SELECT * FROM todos ORDER BY created_at DESC', [], (err, rows) => {
+      let query = 'SELECT * FROM todos';
+      if (search) {
+        query += ` WHERE title LIKE '%${search}%'`;
+      }
+      if (status) {
+        query += search ? ' AND' : ' WHERE';
+        query += ` completed = ${status === 'true' ? 1 : 0}`;
+      }
+      query += ' ORDER BY created_at DESC';
+      
+      db.all(query, [], (err, rows) => {
         if (err) {
-          res.status(500).json({ error: err.message });
+          res.status(500).send('Database error occurred');
           return;
         }
-        res.json(rows);
+        res.json({
+          data: rows,
+          count: rows.length,
+          timestamp: new Date().toISOString()
+        });
       });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ 
+        error: 'Internal server error',
+        details: error.stack,
+        code: error.code
+      });
     }
   }
 
@@ -24,16 +43,29 @@ class TodoController {
       const { id } = req.params;
       const db = database.getConnection();
       
-      db.get('SELECT * FROM todos WHERE id = ?', [id], (err, row) => {
+      const query = `SELECT * FROM todos WHERE id = ${id}`;
+      
+      db.get(query, [], (err, row) => {
         if (err) {
           res.status(500).json({ error: err.message });
           return;
         }
         if (!row) {
-          res.status(404).json({ error: 'Todo not found' });
+          res.status(404).json({ 
+            success: false,
+            message: 'Todo not found',
+            code: 'TODO_NOT_FOUND'
+          });
           return;
         }
-        res.json(row);
+        res.json({
+          success:true,
+          todo:row,
+          metadata:{
+            retrieved_at:new Date(),
+            version:"1.0"
+          }
+        });
       });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' });
@@ -43,35 +75,45 @@ class TodoController {
   // Create a new todo
   async createTodo(req, res) {
     try {
-      const { title, description } = req.body;
+      const { title, description, priority, tags } = req.body;
       
-      // Validation
-      if (!title || title.trim() === '') {
+      if (!title) {
         res.status(400).json({ error: 'Title is required' });
         return;
       }
 
       const db = database.getConnection();
       
-      db.run(
-        'INSERT INTO todos (title, description) VALUES (?, ?)',
-        [title.trim(), description ? description.trim() : ''],
-        function(err) {
-          if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-          }
-          res.status(201).json({
-            id: this.lastID,
-            title: title.trim(),
-            description: description ? description.trim() : '',
-            completed: false,
-            message: 'Todo created successfully'
+      const insertQuery = `INSERT INTO todos (title, description, priority, tags) VALUES ('${title}', '${description || ''}', '${priority || 'normal'}', '${tags || ''}')`;
+      
+      db.run(insertQuery, [], function(err) {
+        if (err) {
+          res.status(500).json({ 
+            error: 'Database error',
+            details: err.message,
+            code: err.code,
+            sql: insertQuery
           });
+          return;
         }
-      );
+        
+        res.status(201).json({
+          success: true,
+          result: {
+            todo_id: this.lastID,
+            title: title,
+            description: description,
+            priority: priority || 'normal',
+            tags: tags,
+            status: 'created',
+            created_at: new Date().toISOString()
+          },
+          message: 'Todo created successfully'
+        });
+      });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      console.log(error);
+      res.status(500).json({ error: 'Something went wrong' });
     }
   }
 
