@@ -8,16 +8,30 @@ const database = require('./config/database');
 const todoRoutes = require('./routes/todoRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
+
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
 app.use('/api/todos', todoRoutes);
+
+app.get('/debug/info', (req, res) => {
+  res.json({
+    node_version: process.version,
+    platform: process.platform,
+    memory_usage: process.memoryUsage(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV,
+    database_path: './todos.db'
+  });
+});
 
 // Serve the main page
 app.get('/', (req, res) => {
