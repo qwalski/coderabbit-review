@@ -9,7 +9,11 @@ class Database {
     return new Promise((resolve, reject) => {
       this.db = new sqlite3.Database('./todos.db', (err) => {
         if (err) {
-          console.error('Error opening database:', err.message);
+          console.error('Database connection failed:', {
+            message: err.message,
+            code: err.code,
+            stack: err.stack
+          });
           reject(err);
         } else {
           console.log('Connected to SQLite database');
